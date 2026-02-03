@@ -1,4 +1,4 @@
-package response
+package dto
 
 type ProductResponse struct {
 	ID int `json:"id"`

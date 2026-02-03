@@ -1,11 +1,8 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
-	"product_service/internal/delivery/http/dto/input"
-	"product_service/internal/delivery/http/dto/request"
-	"product_service/internal/delivery/http/dto/response"
+	"product_service/internal/delivery/http/dto"
 	"product_service/internal/helper"
 	"product_service/internal/usecase"
 	"strconv"
@@ -14,14 +11,15 @@ import (
 )
 
 type ProductHandler struct {
-	usecase usecase.ProductUseCase
+	usecase *usecase.ProductUseCaseImpl
 }
 
-func NewProductHandler(u usecase.ProductUseCase) *ProductHandler {
+func NewProductHandler(u *usecase.ProductUseCaseImpl) *ProductHandler {
 	return &ProductHandler{
 		usecase: u,
-	}
+    }
 }
+
 
 func (h *ProductHandler) GetAllProduct(c *gin.Context) {
 	product, err := h.usecase.GetAllProduct(c. Request.Context())
@@ -31,10 +29,10 @@ func (h *ProductHandler) GetAllProduct(c *gin.Context) {
         return
     }
 
-    var resp []response.ProductResponse 
+    var resp []dto.ProductResponse 
 
     for _, p := range product {
-        resp = append(resp, response.ProductResponse{
+        resp = append(resp, dto.ProductResponse{
             ID : p.ID,
             Name : p.Name,
             Description: p.Description,
@@ -49,7 +47,6 @@ func (h *ProductHandler) GetAllProduct(c *gin.Context) {
 }
 
 func (h *ProductHandler) GetProductByID(c *gin.Context) {
-    // ambil id dari param
     idParam := c.Param("id")
     id64, err := strconv.ParseUint(idParam, 10, 64)
     if err != nil {
@@ -57,23 +54,20 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
         return
     }
 
-    product, err := h.usecase.GetProductByID(c.Request.Context(), id64)
+    product, err := h.usecase.GetProductByID(c, id64)
+
     if err != nil {
-        if errors.Is(err, usecase.ErrProductNotFound) {
-            helper.ErrorResponse(c, http.StatusNotFound, "product not found")
-            return
-        }
         helper.ErrorResponse(c, http.StatusInternalServerError, err.Error())
         return
     }
 
-    resp := response.ProductResponse{
-        ID:          int(product.ID),
-        Name:        product.Name,
-        Description: product.Description,
-        Price:       product.Price,
-        Image:       product.Image,
-    }
+    resp := dto.ProductResponse{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Image:       product.Image,
+	}
 
     helper.SuccessResponse(c, "success", gin.H{
         "product": resp,
@@ -81,28 +75,28 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
-	var req request.ProductRequest
+	var req dto.ProductRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helper.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-    i := input.CreateProductInput{
+    i := dto.CreateProductInput{
         Name : req.Name,
         Description: req.Description,
         Price: req.Price,
         Image: req.Image,
     }
 
-    product, err := h.usecase.CreateProduct(c.Request.Context(), i) 
+    product, err := h.usecase.CreateProduct(c.Request.Context(), &i) 
 
     if err != nil {
         helper.ErrorResponse(c, http.StatusInternalServerError, err.Error())
         return
     }
 
-    resp := response.ProductResponse{
+    resp := dto.ProductResponse{
         ID:          int(product.ID),
         Name:        product.Name,
         Description: product.Description,
@@ -125,28 +119,28 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
         return
     }
 
-    var req request.ProductRequest
+    var req dto.ProductRequest
 
     if err := c.ShouldBindJSON(&req); err != nil {
         helper.ErrorResponse(c, http.StatusBadRequest, err.Error())
         return
     }
 
-    i := input.UpdateProductInput{
+    in := dto.UpdateProductInput{
         Name : req.Name,
         Description: req.Description,
         Price: req.Price,
         Image: req.Image,
     }
 
-    product, err := h.usecase.UpdateProduct(c.Request.Context(), id64, i) 
+    product, err := h.usecase.UpdateProduct(c.Request.Context(), id64, &in) 
 
     if err != nil {
         helper.ErrorResponse(c, http.StatusBadRequest, err.Error())
         return
     }
 
-    resp := response.ProductResponse{
+    resp := dto.ProductResponse{
         ID : product.ID,
         Name : product.Name,
         Description: product.Description,

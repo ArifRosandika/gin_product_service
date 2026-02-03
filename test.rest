@@ -1,0 +1,35 @@
+/// GET ALL PRODUCT
+### 
+GET http://localhost:8080/products
+
+/// GET PRODUCT BY ID
+###
+GET http://localhost:8080/products/5
+
+/// CREATE PRODUCT
+###
+POST http://localhost:8080/products
+Content-Type: application/json 
+
+{
+  "Name" : "Product 3",
+  "Description" : "Nice to have",
+  "Price" : 455,
+  "Image" : "img"
+}
+
+/// EDIT PRODUCT
+###
+PUT http://localhost:8080/products/2
+Content-Type: application/json 
+
+{
+  "Name" : "Product 2",
+  "Description" : "You must to have",
+  "Price" : 700,
+  "Image" : "img"
+}
+
+/// DELETE PRODUCT
+###
+DELETE http://localhost:8080/products/3

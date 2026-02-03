@@ -15,11 +15,11 @@ func InitConfig() *gorm.DB {
 		log.Fatal("failed to load .env", err)
 	}
 
-	host := viper.GetString("HOST")
-	user := viper.GetString("USER")
-	password := viper.GetString("PASSWORD")
-	dbname := viper.GetString("DBNAME")
-	port := viper.GetString("PORT")
+	host := viper.GetString("HOST_DB")
+	user := viper.GetString("USER_DB")
+	password := viper.GetString("PASSWORD_DB")
+	dbname := viper.GetString("DBNAME_DB")
+	port := viper.GetString("PORT_DB")
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
 
@@ -27,7 +27,7 @@ func InitConfig() *gorm.DB {
 
 	if err != nil {
 		log.Fatal("invalid to connect database", err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	log.Println("connect db successfully")

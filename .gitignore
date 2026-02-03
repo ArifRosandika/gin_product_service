@@ -1,0 +1,43 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+main
+
+# Go workspace
+/bin/
+/pkg/
+
+# Go build cache
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+
+# Coverage
+coverage.out
+
+# Temporary files
+tmp/
+temp/
