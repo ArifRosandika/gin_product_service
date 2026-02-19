@@ -18,10 +18,10 @@ func InitConfig() *gorm.DB {
 	host := viper.GetString("HOST_DB")
 	user := viper.GetString("USER_DB")
 	password := viper.GetString("PASSWORD_DB")
-	dbname := viper.GetString("DBNAME_DB")
+	namedb := viper.GetString("NAME_DB")
 	port := viper.GetString("PORT_DB")
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, namedb, port)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 

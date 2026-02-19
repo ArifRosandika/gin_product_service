@@ -24,7 +24,7 @@ func (u *ProductUseCaseImpl) GetProductByID(ctx context.Context, id uint64) (*do
 	return u.repository.FindByID(ctx, int64(id))
 }
 
-func (u *ProductUseCaseImpl) CreateProduct(ctx context.Context, input *dto.CreateProductInput) (*domain.Product, error) {
+func (u *ProductUseCaseImpl) CreateProduct(ctx context.Context, input *domain.Product) (*domain.Product, error) {
 	product := &domain.Product {
 		Name : input.Name,
 		Description : input.Description,
@@ -39,19 +39,23 @@ func (u *ProductUseCaseImpl) CreateProduct(ctx context.Context, input *dto.Creat
 	return product, nil
 }
 
-func (u *ProductUseCaseImpl) UpdateProduct(ctx context.Context, id uint64, input *dto.UpdateProductInput) (*domain.Product, error) {
- if err := u.repository.Update(ctx, int64(id), map[string]interface{}{
+func (u *ProductUseCaseImpl) UpdateProduct(ctx context.Context, id uint64, input *dto.ProductRequest) (*domain.Product, error) {
+	product, err := u.repository.FindByID(ctx, int64(id))
 
-		"name":        input.Name,
-		"description": input.Description,
-		"price":       input.Price,
-		"image":       input.Image,
-	},
-); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	return u.repository.FindByID(ctx, int64(id))
+	product.Name = input.Name
+	product.Description = input.Description
+	product.Price = input.Price
+	product.Image = input.Image
+
+	if err := u.repository.Update(ctx, product); err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
 func (u *ProductUseCaseImpl) DeleteProduct(ctx context.Context, id uint64) error {

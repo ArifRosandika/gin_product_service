@@ -41,8 +41,8 @@ func (r *ProductRepositoryImpl) Create(ctx context.Context, product *domain.Prod
 	return r.db.WithContext(ctx).Create(&product).Error
 }
 
-func (r *ProductRepositoryImpl) Update(ctx context.Context, id int64, data map[string]interface{}) error {
-	return r.db.WithContext(ctx).Model(&domain.Product{}).Where("id = ?", id).Updates(data).Error
+func (r *ProductRepositoryImpl) Update(ctx context.Context, product *domain.Product) error {
+	return r.db.WithContext(ctx).Save(&product).Error
 }
 
 func (r *ProductRepositoryImpl) Delete(ctx context.Context, id int64) error {
