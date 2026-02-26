@@ -23,31 +23,47 @@ func NewProductHandler(u *usecase.ProductUseCaseImpl) *ProductHandler {
     }
 }
 
+func (h *ProductHandler) List(c *gin.Context) {
+    limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 
-func (h *ProductHandler) GetAllProduct(c *gin.Context) {
-	product, err := h.usecase.GetAllProduct(c. Request.Context())
+    if limit > 50 {
+        limit = 50
+    }
+
+    if page < 1 {
+        page = 1
+    }
+
+    offset := (page - 1) * limit
+    
+
+    items, total, err := h.usecase.List(c, limit, offset)
 
     if err != nil {
-        helper.ErrorResponse(c, http.StatusInternalServerError, gin.H{
-            "message": err.Error(),
+        helper.ErrorResponse(c, 500, gin.H{
+            "message" : err.Error(),
         })
-        return
     }
 
-    var resp []dto.ProductResponse 
-
-    for _, p := range product {
-        resp = append(resp, dto.ProductResponse{
-            ID : p.ID,
-            Name : p.Name,
+    responses := make([]dto.ProductResponse, 0, len(items))
+    for _, p := range items {
+        responses = append(responses, dto.ProductResponse {
+            ID:          p.ID,
+            Name:        p.Name,
             Description: p.Description,
-            Price: p.Price,
-            Image: p.Image,
+            Price:       p.Price,
+            Image:       p.Image,
         })
     }
 
-    helper.SuccessResponse(c, "success", gin.H{
-        "products": resp,
+    helper.SuccessResponse(c, "products fetched", gin.H{
+        "items": responses,
+        "meta": gin.H{
+            "page": page,
+            "limit": limit,
+            "total": total,
+        },
     })
 }
 
@@ -103,13 +119,13 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 
             switch e.Tag() {
             case "required":
-                errors[field] = field + "is required"
+                errors[field] = field + " is required"
             case "min":
-                errors[field] = field + "must be at least " + e.Param()
+                errors[field] = field + " must be at least " + e.Param()
             case "gt":
-                errors[field] = field + "must be greater than 0 " + e.Param()
+                errors[field] = field + " must be greater than " + e.Param()
             case "url":
-                errors[field] = field + "must be a valid URL"
+                errors[field] = field + " must be a valid URL"
             default:
                 errors[field] = e.Error()
             }
@@ -124,10 +140,10 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
     }
 
     p := &domain.Product{
-        Name : req.Name,
+        Name :       req.Name,
         Description: req.Description,
-        Price: req.Price,
-        Image: req.Image,
+        Price:       req.Price,
+        Image:       req.Image,
     }
 
     product, err := h.usecase.CreateProduct(c.Request.Context(), p) 
@@ -140,6 +156,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
     }
 
     resp := dto.ProductResponse{
+        ID:          product.ID,
         Name:        product.Name,
         Description: product.Description,
         Price:       product.Price,
@@ -182,13 +199,13 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 
             switch e.Tag() {
             case "required":
-                errors[field] = field + "is required"
+                errors[field] = field + " is required"
             case "min":
-                errors[field] = field + "must be at least " + e.Param()
+                errors[field] = field + " must be at least " + e.Param()
             case "gt":
-                errors[field] = field + "must be greater than " + e.Param()
+                errors[field] = field + " must be greater than " + e.Param()
             case "url":
-                errors[field] = field + "must be a valid URL"
+                errors[field] = field + " must be a valid URL"
             default:
                 errors[field] = err.Error()
             }
@@ -203,10 +220,10 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
     }
 
     product, err := h.usecase.UpdateProduct(c.Request.Context(), id64, &dto.ProductRequest{
-        Name : req.Name,
+        Name :       req.Name,
         Description: req.Description,
-        Price: req.Price,
-        Image: req.Image,
+        Price:       req.Price,
+        Image:       req.Image,
     })
 
     if err != nil {
@@ -217,11 +234,11 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
     }
 
     resp := dto.ProductResponse{
-        ID : product.ID,
-        Name : product.Name,
+        ID :         product.ID,
+        Name :       product.Name,
         Description: product.Description,
-        Price: product.Price,
-        Image: product.Image,
+        Price:       product.Price,
+        Image:       product.Image,
     }
 
     helper.SuccessResponse(c, "update product successfully", gin.H{

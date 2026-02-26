@@ -1,6 +1,6 @@
-/// GET ALL PRODUCT
+/// LIST PRODUCT
 ### 
-GET http://localhost:8080/products
+GET http://localhost:8080/products?limit=10&page=2
 
 /// GET PRODUCT BY ID
 ###
@@ -12,24 +12,24 @@ POST http://localhost:8080/products
 Content-Type: application/json 
 
 {
-  "Name": "Kentaki",
+  "Name": "Product 12",
   "Description": "Nice to have, You should try this one",
-  "Price": 8,
+  "Price": 190,
   "Image": "http://image.png"
 }
 
 /// EDIT PRODUCT
 ###
-PUT http://localhost:8080/products/4
+PUT http://localhost:8080/products/12
 Content-Type: application/json 
 
 {
-  "Name":"iPhone",
+  "Name":"Product 12",
   "Description":"Nice to have",
-  "Price": 888,
+  "Price": 85666,
   "Image":"http://image.png"
 }
 
 /// DELETE PRODUCT
 ###
-DELETE http://localhost:8080/products/5
+DELETE http://localhost:8080/products/12

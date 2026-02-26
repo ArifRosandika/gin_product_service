@@ -16,8 +16,8 @@ func NewProductUseCase(repository domain.ProductRepository) *ProductUseCaseImpl 
 	}
 }
 
-func (u *ProductUseCaseImpl) GetAllProduct(ctx context.Context) ([]*domain.Product, error) {
-	return u.repository.FindAllProduct(ctx)
+func (u *ProductUseCaseImpl) List(ctx context.Context, limit, offset int) ([]*domain.Product, int, error) {
+	return u.repository.List(ctx, limit, offset)
 }
 
 func (u *ProductUseCaseImpl) GetProductByID(ctx context.Context, id uint64) (*domain.Product, error) {

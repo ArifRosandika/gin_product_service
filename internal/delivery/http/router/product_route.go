@@ -5,7 +5,7 @@ import (
 	"product_service/internal/delivery/http/handler"
 )
 func NewProductRoute(r *gin.Engine, h *handler.ProductHandler) {
-	r.GET("/products", h.GetAllProduct)
+	r.GET("/products", h.List)
 	r.GET("/products/:id", h.GetProductByID)
 	r.POST("/products", h.CreateProduct)
 	r.PUT("/products/:id", h.UpdateProduct)

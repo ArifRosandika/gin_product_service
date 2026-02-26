@@ -17,14 +17,22 @@ func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 	}
 }
 
-func (r *ProductRepositoryImpl) FindAllProduct(ctx context.Context) ([]*domain.Product, error) {
-	var products []*domain.Product
+func (r *ProductRepositoryImpl) List(ctx context.Context, limit, offset int) ([]*domain.Product, int, error) {
 
-	if err := r.db.WithContext(ctx).Find(&products).Error; err != nil {
-		return nil, err
+	var (
+		product []*domain.Product
+		total int64
+	)
+
+	if err := r.db.WithContext(ctx).Model(&domain.Product{}).Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
 
-	return products, nil
+	if err := r.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&product).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return product, int(total), nil
 }
 
 func (r *ProductRepositoryImpl) FindByID(ctx context.Context, id int64) (*domain.Product, error) {

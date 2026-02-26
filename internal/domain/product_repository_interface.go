@@ -5,7 +5,7 @@ import (
 )
 
 type ProductRepository interface {
-	FindAllProduct(ctx context.Context) ([]*Product, error)
+	List(ctx context.Context, limit, offset int) ([]*Product, int, error)
 	FindByID(ctx context.Context, id int64) (*Product, error)
 	Create(ctx context.Context, product *Product) error
 	Update(ctx context.Context, product *Product) error
