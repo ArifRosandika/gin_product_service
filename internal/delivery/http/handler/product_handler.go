@@ -7,19 +7,19 @@ import (
 	"product_service/internal/helper"
 	"product_service/internal/usecase"
 	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
 type ProductHandler struct {
 	usecase *usecase.ProductUseCaseImpl
+    validator *validator.Validate
 }
 
 func NewProductHandler(u *usecase.ProductUseCaseImpl) *ProductHandler {
 	return &ProductHandler{
 		usecase: u,
+        validator: validator.New(),
     }
 }
 
@@ -109,35 +109,13 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-    validators := validator.New()
-
-    if err := validators.Struct(req); err != nil {
-        errors := make(map[string]string) 
-
-        for _, e := range err.(validator.ValidationErrors) {
-            field := strings.ToLower(e.Field())
-
-            switch e.Tag() {
-            case "required":
-                errors[field] = field + " is required"
-            case "min":
-                errors[field] = field + " must be at least " + e.Param()
-            case "gt":
-                errors[field] = field + " must be greater than " + e.Param()
-            case "url":
-                errors[field] = field + " must be a valid URL"
-            default:
-                errors[field] = e.Error()
-            }
-        }
-
+   if err := h.validator.Struct(req); err != nil {
         helper.ErrorResponse(c, 400, gin.H{
-            "message": "validation failed",
-            "errors":  errors,
+            "message": err.Error(),
+            "error": helper.FormatValidationError(err),
         })
-
         return
-    }
+   }
 
     p := &domain.Product{
         Name :       req.Name,
@@ -189,35 +167,13 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
         return
     }
 
-    validators := validator.New()
-
-    if err := validators.Struct(req); err != nil {
-        errors := make(map[string]string) 
-
-        for _, e := range err.(validator.ValidationErrors) {
-            field := strings.ToLower(e.Field())
-
-            switch e.Tag() {
-            case "required":
-                errors[field] = field + " is required"
-            case "min":
-                errors[field] = field + " must be at least " + e.Param()
-            case "gt":
-                errors[field] = field + " must be greater than " + e.Param()
-            case "url":
-                errors[field] = field + " must be a valid URL"
-            default:
-                errors[field] = err.Error()
-            }
-        }
-
+    if err := h.validator.Struct(req); err != nil {
         helper.ErrorResponse(c, 400, gin.H{
-            "message": "validation failed",
-            "errors":  errors,
+            "message": err.Error(),
+            "error": helper.FormatValidationError(err),
         })
-
         return
-    }
+   }
 
     product, err := h.usecase.UpdateProduct(c.Request.Context(), id64, &dto.ProductRequest{
         Name :       req.Name,
